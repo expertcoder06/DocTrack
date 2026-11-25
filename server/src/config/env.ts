@@ -26,6 +26,16 @@ function optional(key: string, fallback: string): string {
   return process.env[key] || fallback;
 }
 
+/** Helper: parse comma-separated env values into a clean list */
+function optionalList(key: string, fallback: string[]): string[] {
+  const raw = process.env[key];
+  if (!raw) return fallback;
+  return raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
 /** Helper: sanitize MongoDB URI to ensure password special characters (like '@') are properly encoded */
 function sanitizeMongoUri(rawUri: string): string {
   const match = rawUri.match(/^(mongodb(?:\+srv)?:\/\/)(.*)$/);
@@ -89,6 +99,7 @@ export const env = {
 
   // CORS
   CLIENT_ORIGIN: optional('CLIENT_ORIGIN', 'http://localhost:5173'),
+  CLIENT_ORIGINS: optionalList('CLIENT_ORIGINS', [optional('CLIENT_ORIGIN', 'http://localhost:5173')]),
 
   /** true when NODE_ENV === 'production' */
   get isProduction(): boolean {
